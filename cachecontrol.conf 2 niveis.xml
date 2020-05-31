@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+
+<conf>
+
+<!--
+    Níveis de cache define a quantidade de níveis de cache que serão criados (L1, L2, L3, etc.)
+    IMPORTANTE: Quando houver mais de 1 nível, os valores dos caches de dados e instruções deve ser separados por vírgula
+                Exemplo: <tamanho_bytes_cahce_dados>32768, 65536</tamanho_bytes_cahce_dados> 
+                        significa que o cache L1 tem 32KB e o cache L2 tem 6KB
+    Deve ser um número inteiro maior que 1
+-->
+<niveis_de_cache>2</niveis_de_cache>
+
+<!--
+    split_cache (Valor lógico 0=False e 1=True) define se haverá somente um cahce para dados e instruções (valor 0) ou se
+    haverá cache separado para estas duas funções (valor 1)
+    IMPORTANTE: Se houver somente um cahce (valor 0), apenas as configurações do cache de dados serão utilizadas.
+-->
+<split_cache>1</split_cache>
+
+<!--Tamanho total do cache de dados em bytes. Nõa leva em conta os bytes de configuração do cache-->
+<tamanho_bytes_cahce_dados>32768,65536</tamanho_bytes_cahce_dados>
+<!--quantidade de linahs do cache de dados.-->
+<quantidade_linhas_cahce_dados>512,1024</quantidade_linhas_cahce_dados>
+<!--Quantidade de vias do cache de dados. Pode varia de 1 (não associativo) até o numéro de linhas (totalmente associativo)-->
+<quantidade_vias_cahce_dados>16,32</quantidade_vias_cahce_dados>
+<!--pode ser 'writeback' ou 'writethrough'-->
+<politica_de_write_cahce_dados>writethrough,writethrough</politica_de_write_cahce_dados>
+<!--opções válidas: 1 - LRU, 2 - MRU, 3 - FIFO e 4 - ALEATORIO-->
+<algoritmo_substituicao_linhas_cache_dados>3,3</algoritmo_substituicao_linhas_cache_dados>
+
+<!--Tamanho total do cache de dados em bytes. Nõa leva em conta os bytes de configuração do cache-->
+<tamanho_bytes_cahce_instrucoes>32768,65536</tamanho_bytes_cahce_instrucoes>
+<!--quantidade de linahs do cache de dados.-->
+<quantidade_linhas_cahce_instrucoes>512,1024</quantidade_linhas_cahce_instrucoes>
+<!--Quantidade de vias do cache de dados. Pode varia de 1 (não associativo) até o numéro de linhas (totalmente associativo)-->
+<quantidade_vias_cahce_instrucoes>16,32</quantidade_vias_cahce_instrucoes>
+<!--pode ser 'writeback' ou 'writethrough'-->
+<politica_de_write_cahce_instrucoes>writethrough,writethrough</politica_de_write_cahce_instrucoes>
+<!--opções válidas: 1 - LRU, 2 - MRU, 3 - FIFO e 4 - ALEATORIO-->
+<algoritmo_substituicao_linhas_cache_instrucoes>3,3</algoritmo_substituicao_linhas_cache_instrucoes>
+
+</conf>
+
+
+
