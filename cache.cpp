@@ -26,7 +26,19 @@ void cache::gravar(int byte_offset, int index, int64_t tag, int tamanho){
         // se a linha que está no cache é inváida ou não é a que precisa gravar,  
         // marca miss e busca
         if (linha < 0){
-            busca_linha_memoria(set, tag); // essa função já incrementa o miss e grava, se for dirty com whrite back
+             // marca o miss
+            misses ++;
+    
+            // se existe cahce de próximo nível, busca o dados nele
+            // não faz nada se não houver outro cache, pois é apenas uma simução e não precisa buscar na memória
+            // Obs.: o cache de próximo nível é sempre do mesmo tipo deste (instrução ou dados)
+            if (cache_proximo_nivel != NULL) {
+                cache_proximo_nivel->ler(byte_offset, index, tag, tamanho);
+            }
+
+            // simula gravar a nova linha neste cache
+            grava_linha_no_cache(set, tag);
+
         } else {
             hits ++;
 
@@ -40,8 +52,13 @@ void cache::gravar(int byte_offset, int index, int64_t tag, int tamanho){
         // age conforme política
         if (politica_de_write == "writethrough") {
             grava_linha_memoria(linha);
-        } else {  // é whriteback
+        } else {  // é whriteback, só marca que está suja e grava quando for acessar
             linhaCache[linha].dirty = 1;
+        }
+
+        // se possui outros níveis de cahce, propaga a gravação
+        if (cache_proximo_nivel != NULL) {
+            cache_proximo_nivel->gravar(byte_offset, index, tag, tamanho);
         }
 
         bytes_gravados += (tamanho_linhas - byte_offset);
@@ -53,6 +70,7 @@ void cache::gravar(int byte_offset, int index, int64_t tag, int tamanho){
         gravacoes++;
     }  
 }
+
 
 /************
 Lê no cache, ou busca na memória, o valor no local indicado
@@ -72,7 +90,6 @@ void cache::ler(int byte_offset, int index, int64_t tag, int tamanho){
     // laço para ler todos os bytes
     while (bytes_lidos < tamanho) {
         // identifica linha do cache onde deve estar o valor
-        //linha = linha_endereco(endereco);
         set = index % quantidade_sets;
 
         // verifica se alguma das linhas do set é válida e tem o endereço desejado
@@ -80,7 +97,19 @@ void cache::ler(int byte_offset, int index, int64_t tag, int tamanho){
 
         // se a linha não é válida ou o endereço buscado não está na linha, é um Miss e tem que buscar na memória
         if (linha < 0) {
-            busca_linha_memoria(set, tag);
+            // marca o miss
+            misses ++;
+    
+            // se existe cahce de próximo nível, busca o dados nele
+            // não faz nada se não houver outro cache, pois é apenas uma simução e não precisa buscar na memória
+            // Obs.: o cache de próximo nível é sempre do mesmo tipo deste (instrução ou dados)
+            if (cache_proximo_nivel != NULL) {
+                cache_proximo_nivel->ler(byte_offset, index, tag, tamanho);
+            }
+
+            // simula gravar a nova linha neste cache
+            grava_linha_no_cache(set, tag);
+
         } else {  // senão, é hit
             hits ++;
 
@@ -135,11 +164,9 @@ Entrada:
 Saída:
     nenhuma, é só simulação
 ************/
-void cache::busca_linha_memoria(int set, int64_t tag) {
+void cache::grava_linha_no_cache(int set, int64_t tag) {
     int linha, linha_ini_set, linha_fim_set;
     unsigned int maior_valor, menor_valor;
-
-    misses ++;
 
     // calcula as linhas inicial e final do set
     linha_ini_set = set * quantidade_vias;
@@ -148,83 +175,71 @@ void cache::busca_linha_memoria(int set, int64_t tag) {
     // indentifica uma linha do set para gravar
     switch (algoritmo_substituicao_linhas)
     {
-    case 1:  // LRU
-        // identifica uma linha inválida ou a linha com maior contador (menos recentemente usado)
-        maior_valor = 0;
-        linha = set * quantidade_vias;
-        for (int i = linha_ini_set; i <= linha_fim_set; i++){
-            if (linhaCache[i].valida == 0) {
-                linha = i;
-                break;
-            }
-            else {
-                if (linhaCache[i].contador > maior_valor) {
-                    maior_valor = linhaCache[i].contador;
+        case 1:  // LRU
+            // identifica uma linha inválida ou a linha com maior contador (menos recentemente usado)
+            maior_valor = 0;
+            linha = set * quantidade_vias;
+            for (int i = linha_ini_set; i <= linha_fim_set; i++){
+                if (linhaCache[i].valida == 0) {
                     linha = i;
+                    break;
                 }
-            }            
-        }
-        // marca contador em 1 (mais recentemente usado) e incrementa os outros
-        ajusta_contador_LRU_MRU(linha, set);
-        break;
-    
-    case 2:  // MRU
-        // identifica uma linha inválida ou a linha com menor contador (mais recentemente usado)
-        menor_valor = UINT_MAX;
-        linha = set * quantidade_vias;
-        for (int i = linha_ini_set; i <= linha_fim_set; i++){
-            if (linhaCache[i].valida == 0) {
-                linha = i;
-                break;
+                else {
+                    if (linhaCache[i].contador > maior_valor) {
+                        maior_valor = linhaCache[i].contador;
+                        linha = i;
+                    }
+                }            
             }
-            else {
-                if (linhaCache[i].contador < menor_valor) {
-                    menor_valor = linhaCache[i].contador;
+            // marca contador em 1 (mais recentemente usado) e incrementa os outros
+            ajusta_contador_LRU_MRU(linha, set);
+            break;
+        
+        case 2:  // MRU
+            // identifica uma linha inválida ou a linha com menor contador (mais recentemente usado)
+            menor_valor = UINT_MAX;
+            linha = set * quantidade_vias;
+            for (int i = linha_ini_set; i <= linha_fim_set; i++){
+                if (linhaCache[i].valida == 0) {
                     linha = i;
+                    break;
                 }
-            }            
-        }
-        // marca contador em 1 (mais recentemente usado) e incrementa os outros
-        ajusta_contador_LRU_MRU(linha, set);
-        break;
-    
-    case 3:  // FIFO
-        // identifica uma linha inválida ou a linha com maior contador (menos recentemente usado)
-        maior_valor = 0;
-        linha = set * quantidade_vias;
-        for (int i = linha_ini_set; i <= linha_fim_set; i++){
-            if (linhaCache[i].valida == 0) {
-                linha = i;
-                break;
+                else {
+                    if (linhaCache[i].contador < menor_valor) {
+                        menor_valor = linhaCache[i].contador;
+                        linha = i;
+                    }
+                }            
             }
-            else {
-                if (linhaCache[i].contador > maior_valor) {
-                    maior_valor = linhaCache[i].contador;
+            // marca contador em 1 (mais recentemente usado) e incrementa os outros
+            ajusta_contador_LRU_MRU(linha, set);
+            break;
+        
+        case 3:  // FIFO
+            // identifica uma linha inválida ou a linha com maior contador (menos recentemente usado)
+            maior_valor = 0;
+            linha = set * quantidade_vias;
+            for (int i = linha_ini_set; i <= linha_fim_set; i++){
+                if (linhaCache[i].valida == 0) {
                     linha = i;
+                    break;
                 }
-            }            
-        }
-        // marca contador em 1 (mais recentemente usado) e incrementa os outros
-        // Esta função serve para FIFO e deve ser cahamada apenas aqui, onde busca a linha.
-        ajusta_contador_LRU_MRU(linha, set);
-        break;
-    
-    case 4:  // Randômico
-        // identifica uma linha inválida ou a linha com maior contador (menos recentemente usado)
-        linha = rand() % quantidade_vias + 1;
-        break;
-    
-    default:
-        // procura por uma inválida ou pega a primeira
-        linha = set * quantidade_vias;
-        for (int i = linha_ini_set; i <= linha_fim_set; i++){
-            if (linhaCache[i].valida == 0) {
-                linha = i;
-                break;
+                else {
+                    if (linhaCache[i].contador > maior_valor) {
+                        maior_valor = linhaCache[i].contador;
+                        linha = i;
+                    }
+                }            
             }
-        }
-
-        break;
+            // marca contador em 1 (mais recentemente usado) e incrementa os outros
+            // Esta função serve para FIFO e deve ser cahamada apenas aqui, onde busca a linha.
+            ajusta_contador_LRU_MRU(linha, set);
+            break;
+        
+        case 4:  // Randômico
+            // identifica uma linha inválida ou a linha com maior contador (menos recentemente usado)
+            linha = rand() % quantidade_vias + 1;
+            break;
     }
     
     // grava linha se for suja, proveniente de write back
@@ -266,6 +281,7 @@ void cache::grava_linha_memoria(int linha) {
   
     // grava linha se for suja, proveniente de write back
     linhaCache[linha].dirty == 0;
+    
     
 };
 

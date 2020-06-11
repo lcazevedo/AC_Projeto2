@@ -290,7 +290,7 @@ cachecontrol::cachecontrol(string json_config_file){
     string* aslci = split_config(doc->FirstChildElement( "conf" )->FirstChildElement( "algoritmo_substituicao_linhas_cache_instrucoes" )->GetText());
     
 
-    // instancia os dois níveis de cache 
+    // cria arrays para guardar os diverso sníveis de cache
     cacheDados = new cache[niveis_de_cache];
     if (split_cache) {
         // inicialização dos caches de dados e instruções
@@ -298,19 +298,20 @@ cachecontrol::cachecontrol(string json_config_file){
     } else {
         cacheInstrucoes = cacheDados;
     }
+    // instancia os níveis de cache, utilizando os parametros lidos no arquivo de cnfiguração 
     for (int i = 0; i < niveis_de_cache; i++){
         cacheDados[i] = cache(atoi(tbcd[i].c_str()), atoi(qlcd[i].c_str()), atoi(qvcd[i].c_str()), pwcd[i], atoi(aslcd[i].c_str()));
-        if (i > 0) cacheDados[i-1].setCacheProximoNivel(&cacheDados[i]);
+        if (i > 0) cacheDados[i-1].setCacheProximoNivel(&cacheDados[i]); // marca que é o cache de próximo nível do cache anterior
 
         if (split_cache) {
             // inicialização dos caches de dados e instruções
             cacheInstrucoes[i] = cache(atoi(tbci[i].c_str()), atoi(qlci[i].c_str()), atoi(qvci[i].c_str()), pwci[i], atoi(aslci[i].c_str()));
-            if (i > 0) cacheInstrucoes[i-1].setCacheProximoNivel(&cacheInstrucoes[i]);
+            if (i > 0) cacheInstrucoes[i-1].setCacheProximoNivel(&cacheInstrucoes[i]);// marca que é o cache de próximo nível do cache anterior
         }
     }
-    cacheDados[niveis_de_cache-1].setCacheProximoNivel(NULL);
+    cacheDados[niveis_de_cache-1].setCacheProximoNivel(NULL); // deixa o último cache do array sem cache de próximo nível
     if (split_cache) 
-        cacheInstrucoes[niveis_de_cache-1].setCacheProximoNivel(NULL);
+        cacheInstrucoes[niveis_de_cache-1].setCacheProximoNivel(NULL);  // deixa o último cache do array sem cache de próximo nível
        
 };
 

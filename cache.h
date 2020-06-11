@@ -59,7 +59,7 @@ class cache {
 
         // métodos privados
         int linha_endereco(int endereco);
-        void busca_linha_memoria(int set, int64_t tag);
+        void grava_linha_no_cache(int set, int64_t tag);
         void grava_linha_memoria(int linha);
         int verifica_set(int set, int64_t tag);
         void ajusta_contador_LRU_MRU(int linha, int set);

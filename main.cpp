@@ -48,8 +48,15 @@ int main() {
         //fs.close();
     }
 
+    cout << "Total de comandos processados: " << contador << endl;
+    cout.precision(5);
+    cout << endl;
+    cout << "Tempo de execução: " << fixed  << tempo << " segundos " << endl;
+    cout << endl;
+    
+
     // quantidade de níveis de cahce configurados
-    int L = 1;
+    int L = 2;
 
     int mi, h, l, g;
     for (int i = 0; i < L; i++) {
@@ -70,10 +77,7 @@ int main() {
         cout << "leituras = " << l  << "    Gravacoes = " << g << "    total = " << l +g << endl;
         cout << endl;
     }
-    cout << "Total de comandos processados: " << contador << endl;
-    cout.precision(5);
-    cout << endl;
-    cout << "Tempo de execução: " << fixed  << tempo << " segundos " << endl;
+    
     
 }
 

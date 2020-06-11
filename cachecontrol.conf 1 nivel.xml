@@ -23,22 +23,22 @@
 <!--quantidade de linahs do cache de dados.-->
 <quantidade_linhas_cahce_dados>512</quantidade_linhas_cahce_dados>
 <!--Quantidade de vias do cache de dados. Pode varia de 1 (não associativo) até o numéro de linhas (totalmente associativo)-->
-<quantidade_vias_cahce_dados>16</quantidade_vias_cahce_dados>
+<quantidade_vias_cahce_dados>512</quantidade_vias_cahce_dados>
 <!--pode ser 'writeback' ou 'writethrough'-->
 <politica_de_write_cahce_dados>writethrough</politica_de_write_cahce_dados>
 <!--opções válidas: 1 - LRU, 2 - MRU, 3 - FIFO e 4 - ALEATORIO-->
-<algoritmo_substituicao_linhas_cache_dados>3</algoritmo_substituicao_linhas_cache_dados>
+<algoritmo_substituicao_linhas_cache_dados>1</algoritmo_substituicao_linhas_cache_dados>
 
 <!--Tamanho total do cache de dados em bytes. Nõa leva em conta os bytes de configuração do cache-->
 <tamanho_bytes_cahce_instrucoes>32768</tamanho_bytes_cahce_instrucoes>
 <!--quantidade de linahs do cache de dados.-->
 <quantidade_linhas_cahce_instrucoes>512</quantidade_linhas_cahce_instrucoes>
 <!--Quantidade de vias do cache de dados. Pode varia de 1 (não associativo) até o numéro de linhas (totalmente associativo)-->
-<quantidade_vias_cahce_instrucoes>16</quantidade_vias_cahce_instrucoes>
+<quantidade_vias_cahce_instrucoes>512</quantidade_vias_cahce_instrucoes>
 <!--pode ser 'writeback' ou 'writethrough'-->
 <politica_de_write_cahce_instrucoes>writethrough</politica_de_write_cahce_instrucoes>
 <!--opções válidas: 1 - LRU, 2 - MRU, 3 - FIFO e 4 - ALEATORIO-->
-<algoritmo_substituicao_linhas_cache_instrucoes>3</algoritmo_substituicao_linhas_cache_instrucoes>
+<algoritmo_substituicao_linhas_cache_instrucoes>1</algoritmo_substituicao_linhas_cache_instrucoes>
 
 </conf>
 
